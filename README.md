@@ -52,7 +52,26 @@ Embeddings are cached in `embeddings.lance/`. Re-running skips unchanged files.
 
 Corrupted or unreadable images get zero vectors (won't match searches).
 
-### Search (coming soon)
+### Search
+
+Start the server (loads model once):
+```bash
+uv run python server.py
+```
+
+Search via CLI:
+```bash
+uv run python search.py "sunset"           # list results
+uv run python search.py "cat" -o           # open in viewer
+uv run python search.py "people" -n 10     # show 10 results
+```
+
+Or via API:
+```bash
+curl -X POST http://127.0.0.1:8000/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "yellow mouse", "limit": 5}'
+```
 
 ### Demo scripts
 ```bash
