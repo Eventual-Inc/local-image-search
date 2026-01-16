@@ -60,18 +60,27 @@ def embed_text(model, tokenizer, text: str) -> np.ndarray:
 
 
 def find_images(directory: Path, recursive: bool = True) -> list[Path]:
-    """Find all image files in a directory, excluding hidden directories."""
-    images = []
-    pattern = "**/*" if recursive else "*"
+    """Find all image files in a directory using find command."""
+    import subprocess
 
-    for path in directory.glob(pattern):
-        # Skip hidden directories (like .venv, .git)
-        if any(part.startswith(".") for part in path.parts):
-            continue
-        if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS:
-            images.append(path)
+    # Build -name conditions for each extension
+    name_args = []
+    for ext in IMAGE_EXTENSIONS:
+        if name_args:
+            name_args.append("-o")
+        name_args.extend(["-name", f"*{ext}"])
 
-    return sorted(images)
+    # Build find command
+    cmd = ["find", str(directory)]
+    if not recursive:
+        cmd.extend(["-maxdepth", "1"])
+    # Exclude hidden directories
+    cmd.extend(["-name", ".*", "-prune", "-o"])
+    cmd.extend(["-type", "f", "("] + name_args + [")", "-print"])
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    paths = [Path(p) for p in result.stdout.strip().split("\n") if p]
+    return sorted(paths)
 
 
 def format_time(seconds: float) -> str:
