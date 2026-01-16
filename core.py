@@ -46,10 +46,27 @@ class EmbedImages:
     @daft.method.batch(return_dtype=DataType.embedding(DataType.float32(), 512))
     def __call__(self, paths: Series):
         """Takes a Series of image paths, returns a list of 512-dim embeddings."""
-        images = [Image.open(p).convert("RGB") for p in paths.to_pylist()]
+        path_list = paths.to_pylist()
+        images = []
+        failed = []
+        for p in path_list:
+            try:
+                images.append(Image.open(p).convert("RGB"))
+            except Exception as e:
+                print(f"Warning: Failed to load {p}: {e}")
+                failed.append(p)
+                images.append(Image.new("RGB", (224, 224)))  # placeholder
+
         pixel_values = self.img_processor(images)
         output = self.model(pixel_values=pixel_values)
-        return [np.array(emb) for emb in output.image_embeds]
+        embeddings = [np.array(emb) for emb in output.image_embeds]
+
+        # Zero out embeddings for failed images
+        for i, p in enumerate(path_list):
+            if p in failed:
+                embeddings[i] = np.zeros(512, dtype=np.float32)
+
+        return embeddings
 
 
 def load_model():
