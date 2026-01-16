@@ -55,12 +55,13 @@ local-image-search/
 ├── plot_benchmark.py        # Generate benchmark plot
 ├── benchmark_results.csv    # Raw benchmark data (10 runs)
 ├── benchmark_plot.png       # Benchmark visualization
-├── CLAUDE.md                # Project notes and next steps
 ├── pyproject.toml           # Project dependencies
 └── uv.lock                  # Dependency lockfile
 ```
 
 ## Benchmarks
+
+Embedding time for the Pokemon dataset (1025 images) on M4 Max, averaged over 10 runs.
 
 ![Benchmark Results](benchmark_plot.png)
 
