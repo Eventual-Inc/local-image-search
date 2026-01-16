@@ -14,13 +14,23 @@ import daft
 from daft import DataType, Series
 from PIL import Image
 import numpy as np
+import pillow_heif
+pillow_heif.register_heif_opener()  # Enable HEIC/HEIF support in PIL
 
 # Paths relative to this file
 MODEL_PATH = str(_CLIP_DIR / "mlx_model")
 DB_PATH = str(_CORE_DIR / "embeddings.lance")
 
 # Image extensions to search for
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff", ".tif"}
+IMAGE_EXTENSIONS = {
+    ".jpg", ".jpeg",  # JPEG
+    ".png",           # PNG
+    ".gif",           # GIF
+    ".webp",          # WebP
+    ".bmp",           # BMP
+    ".tiff", ".tif",  # TIFF
+    ".heic", ".heif", # iPhone photos
+}
 
 # Benchmark: ~280 images/second on M4 Max for batches of 225+
 IMAGES_PER_SECOND = 280

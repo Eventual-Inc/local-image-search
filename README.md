@@ -38,6 +38,18 @@ uv run python embed.py . --no-recursive     # current dir only
 
 Embeddings are cached in `embeddings.lance/`. Re-running skips unchanged files.
 
+### Supported formats
+
+| Format | Extensions | Tested |
+|--------|------------|--------|
+| JPEG | `.jpg`, `.jpeg` | Created and embedded |
+| PNG | `.png` | Created and embedded |
+| GIF | `.gif` | Created and embedded |
+| WebP | `.webp` | Created and embedded |
+| BMP | `.bmp` | Created and embedded |
+| TIFF | `.tiff`, `.tif` | Created and embedded |
+| HEIC/HEIF | `.heic`, `.heif` | Real iPhone photo + converted PNG |
+
 ### Search (coming soon)
 
 ### Demo scripts
