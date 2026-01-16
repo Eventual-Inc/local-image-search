@@ -51,6 +51,11 @@ local-image-search/
 │   └── pokemon/             # Pokemon artwork (1025 images)
 ├── simple_image_search.py   # Basic in-memory search demo
 ├── daft_image_search.py     # Daft-based batch processing
+├── benchmark.py             # Benchmark script
+├── plot_benchmark.py        # Generate benchmark plot
+├── benchmark_results.csv    # Raw benchmark data (10 runs)
+├── benchmark_plot.png       # Benchmark visualization
+├── CLAUDE.md                # Project notes and next steps
 ├── pyproject.toml           # Project dependencies
 └── uv.lock                  # Dependency lockfile
 ```
@@ -58,6 +63,13 @@ local-image-search/
 ## Benchmarks
 
 ![Benchmark Results](benchmark_plot.png)
+
+Run benchmarks yourself:
+```bash
+uv run python benchmark.py      # Run one iteration, appends to CSV
+uv run python benchmark.py 100  # Benchmark with specific number of images
+uv run python plot_benchmark.py # Generate plot from CSV
+```
 
 ## Data Attribution
 
