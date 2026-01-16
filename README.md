@@ -101,6 +101,17 @@ uv run python benchmark.py 100  # Benchmark with specific number of images
 uv run python plot_benchmark.py # Generate plot from CSV
 ```
 
+### Real-world performance (M4 Max, home directory)
+
+| Metric | Value |
+|--------|-------|
+| Images found | 11,843 |
+| Scan time | ~26s |
+| Embed time | ~39s |
+| Total time | ~65s |
+| Embed speed | 260 img/s |
+| Re-run (cached) | ~31s (scan only) |
+
 ## Current Progress and Next Steps
 
 See [CLAUDE.md](CLAUDE.md)
