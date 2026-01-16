@@ -72,6 +72,10 @@ uv run python benchmark.py 100  # Benchmark with specific number of images
 uv run python plot_benchmark.py # Generate plot from CSV
 ```
 
+## Current Progress and Next Steps
+
+See [CLAUDE.md](CLAUDE.md)
+
 ## Data Attribution
 
 ### Pokemon Artwork
