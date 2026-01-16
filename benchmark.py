@@ -43,25 +43,50 @@ def benchmark(n_images: int):
 
 
 def run_all_benchmarks():
-    """Run benchmarks for all data points and save to CSV."""
-    data_points = [1, 25, 225, 425, 625, 825, 1025]
-    results = []
+    """Run one benchmark iteration and append to CSV."""
+    import csv
 
+    data_points = [1, 25, 225, 425, 625, 825, 1025]
+    csv_path = Path("benchmark_results.csv")
+
+    # Load existing data or initialize
+    if csv_path.exists():
+        with open(csv_path, "r") as f:
+            reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames
+            existing_data = {int(row["images"]): row for row in reader}
+        # Determine next run number
+        run_cols = [f for f in fieldnames if f.startswith("run_")]
+        next_run = len(run_cols) + 1
+    else:
+        existing_data = {}
+        fieldnames = ["images"]
+        next_run = 1
+
+    run_col = f"run_{next_run}"
+    fieldnames.append(run_col)
+
+    print(f"\n=== Run {next_run} ===\n")
+
+    # Run benchmarks
     for n in data_points:
         elapsed = benchmark(n)
-        results.append({"images": n, "time_seconds": elapsed})
+        if n in existing_data:
+            existing_data[n][run_col] = elapsed
+        else:
+            existing_data[n] = {"images": n, run_col: elapsed}
 
     # Save to CSV
-    import csv
-    with open("benchmark_results.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["images", "time_seconds"])
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(results)
+        for n in data_points:
+            writer.writerow(existing_data[n])
 
-    print("\nResults saved to benchmark_results.csv")
+    print(f"\nResults saved to benchmark_results.csv (run {next_run})")
     print("\nSummary:")
-    for r in results:
-        print(f"  {r['images']:>4} images: {r['time_seconds']:.2f}s")
+    for n in data_points:
+        print(f"  {n:>4} images: {existing_data[n][run_col]:.2f}s")
 
 
 if __name__ == "__main__":
