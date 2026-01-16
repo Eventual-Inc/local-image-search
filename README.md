@@ -50,6 +50,8 @@ Embeddings are cached in `embeddings.lance/`. Re-running skips unchanged files.
 | TIFF | `.tiff`, `.tif` | Created and embedded |
 | HEIC/HEIF | `.heic`, `.heif` | Real iPhone photo + converted PNG |
 
+Corrupted or unreadable images get zero vectors (won't match searches).
+
 ### Search (coming soon)
 
 ### Demo scripts
