@@ -12,6 +12,9 @@ from daft import col, DataType
 
 from core import EmbedImages, find_images, format_time, IMAGES_PER_SECOND, DB_PATH
 
+# Type for vector column
+VECTOR_DTYPE = DataType.embedding(DataType.float32(), 512)
+
 
 def get_current_files(directory: Path, recursive: bool = True) -> dict[str, float]:
     """Scan directory and return {path: mtime} for all images."""
@@ -128,11 +131,9 @@ def main():
             unchanged_list = list(unchanged_paths)
             df_unchanged = df_existing.where(col("path").is_in(unchanged_list))
 
-            # Cast vector column to match schema (Lance returns List, we create Embedding)
-            # Convert new embeddings to FixedSizeList to match existing data
-            df_new = df_new.with_column(
-                "vector",
-                col("vector").cast(DataType.fixed_size_list(DataType.float32(), 512))
+            # Cast existing vectors to Embedding type (Lance stores as List)
+            df_unchanged = df_unchanged.with_column(
+                "vector", col("vector").cast(VECTOR_DTYPE)
             )
 
             # Combine unchanged + new
