@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 import daft
-from daft import col
+from daft import col, DataType
 
 from core import EmbedImages, find_images, format_time, IMAGES_PER_SECOND, DB_PATH
 
@@ -127,6 +127,13 @@ def main():
             df_existing = daft.read_lance(DB_PATH)
             unchanged_list = list(unchanged_paths)
             df_unchanged = df_existing.where(col("path").is_in(unchanged_list))
+
+            # Cast vector column to match schema (Lance returns List, we create Embedding)
+            # Convert new embeddings to FixedSizeList to match existing data
+            df_new = df_new.with_column(
+                "vector",
+                col("vector").cast(DataType.fixed_size_list(DataType.float32(), 512))
+            )
 
             # Combine unchanged + new
             df_final = df_unchanged.concat(df_new)
