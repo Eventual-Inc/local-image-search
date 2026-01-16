@@ -29,14 +29,21 @@ cd clip && uv run python convert.py && cd ..
 
 ## Usage
 
-### Simple search (2 sample images)
+### Embed images from a directory
 ```bash
-uv run python simple_image_search.py
+uv run python embed.py ~/Pictures           # embed all images
+uv run python embed.py ~/Pictures --dry-run # count and estimate time
+uv run python embed.py . --no-recursive     # current dir only
 ```
 
-### Daft-based search (batch processing)
+Embeddings are cached in `embeddings.lance/`. Re-running skips unchanged files.
+
+### Search (coming soon)
+
+### Demo scripts
 ```bash
-uv run python daft_image_search.py
+uv run python simple_image_search.py  # basic in-memory search (2 images)
+uv run python daft_image_search.py    # batch processing demo
 ```
 
 ## Project Structure
@@ -53,8 +60,12 @@ local-image-search/
 │   └── LICENSE              # MIT License (Apple Inc.)
 ├── data/
 │   └── pokemon/             # Pokemon artwork (1025 images)
+├── embeddings.lance/        # Lance DB storage (generated)
+├── core.py                  # Shared utilities (EmbedImages, find_images, etc.)
+├── embed.py                 # CLI tool to sync embeddings from a directory
+├── test_embed.py            # Tests for embed.py
 ├── simple_image_search.py   # Basic in-memory search demo
-├── daft_image_search.py     # Daft-based batch processing
+├── daft_image_search.py     # Daft-based batch processing demo
 ├── benchmark.py             # Benchmark script
 ├── plot_benchmark.py        # Generate benchmark plot
 ├── benchmark_results.csv    # Raw benchmark data (10 runs)
