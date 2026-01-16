@@ -1,27 +1,13 @@
-import sys
-sys.path.insert(0, "clip")
+"""Benchmark embedding performance."""
 
+import sys
 import time
-import daft
-from daft import col, DataType, Series
-from PIL import Image
-import numpy as np
-import clip
 from pathlib import Path
 
+import daft
+from daft import col
 
-@daft.cls
-class EmbedImages:
-    def __init__(self):
-        self.model, _, self.img_processor = clip.load("clip/mlx_model")
-
-    @daft.method.batch(return_dtype=DataType.embedding(DataType.float32(), 512))
-    def __call__(self, paths: Series):
-        """Takes a Series of image paths, returns a list of embeddings."""
-        images = [Image.open(p) for p in paths.to_pylist()]
-        pixel_values = self.img_processor(images)
-        output = self.model(pixel_values=pixel_values)
-        return [np.array(emb) for emb in output.image_embeds]
+from core import EmbedImages
 
 
 def benchmark(n_images: int):
