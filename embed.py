@@ -131,7 +131,8 @@ def main():
             unchanged_list = list(unchanged_paths)
             df_unchanged = df_existing.where(col("path").is_in(unchanged_list))
 
-            # Cast existing vectors to Embedding type (Lance stores as List)
+            # Cast existing vectors to Embedding type (Lance returns as List)
+            # TODO: Remove after https://github.com/Eventual-Inc/Daft/pull/6058 is released
             df_unchanged = df_unchanged.with_column(
                 "vector", col("vector").cast(VECTOR_DTYPE)
             )
