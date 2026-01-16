@@ -16,10 +16,14 @@ Local image search using MLX CLIP embeddings and Daft for batch processing.
 ## Setup
 
 ```bash
+# Clone the repo
+git clone https://github.com/Eventual-Inc/local-image-search.git
+cd local-image-search
+
 # Install dependencies
 uv sync
 
-# Download and convert CLIP model (first time only)
+# Download and convert CLIP model (~600MB, first time only)
 cd clip && uv run python convert.py && cd ..
 ```
 
