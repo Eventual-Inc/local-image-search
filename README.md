@@ -55,6 +55,10 @@ local-image-search/
 └── uv.lock                  # Dependency lockfile
 ```
 
+## Benchmarks
+
+![Benchmark Results](benchmark_plot.png)
+
 ## Data Attribution
 
 ### Pokemon Artwork
