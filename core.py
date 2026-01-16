@@ -86,9 +86,10 @@ def embed_text(model, tokenizer, text: str) -> np.ndarray:
     return np.array(output.text_embeds[0])
 
 
-def find_images(directory: Path, recursive: bool = True) -> list[Path]:
+def find_images(directory: Path, recursive: bool = True, show_progress: bool = True) -> list[Path]:
     """Find all image files in a directory using find command."""
     import subprocess
+    import sys
 
     # Build -name conditions for each extension
     name_args = []
@@ -105,8 +106,20 @@ def find_images(directory: Path, recursive: bool = True) -> list[Path]:
     cmd.extend(["-name", ".*", "-prune", "-o"])
     cmd.extend(["-type", "f", "("] + name_args + [")", "-print"])
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    paths = [Path(p) for p in result.stdout.strip().split("\n") if p]
+    # Stream output and show progress
+    paths = []
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    for line in process.stdout:
+        path = line.strip()
+        if path:
+            paths.append(Path(path))
+            if show_progress and len(paths) % 1000 == 0:
+                print(f"\rFound: {len(paths):,} images...", end="", flush=True)
+    process.wait()
+
+    if show_progress and len(paths) >= 1000:
+        print()  # newline after progress
+
     return sorted(paths)
 
 
