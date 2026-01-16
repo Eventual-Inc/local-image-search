@@ -17,6 +17,7 @@ import numpy as np
 
 # Paths relative to this file
 MODEL_PATH = str(_CLIP_DIR / "mlx_model")
+DB_PATH = str(_CORE_DIR / "embeddings.lance")
 
 # Image extensions to search for
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff", ".tif"}

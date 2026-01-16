@@ -12,6 +12,7 @@ dependencies = [
     "mlx-data>=0.2.0",
     "numpy>=2.4.1",
     "pillow>=12.1.0",
+    "pylance>=1.0.2",
     "torch>=2.9.1",
     "transformers>=4.57.6",
 ]
