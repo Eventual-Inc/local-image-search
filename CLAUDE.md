@@ -8,12 +8,8 @@ See README.md for project structure and setup instructions.
 - Created Daft-based batch embedding with `@daft.cls`
 - Benchmarked performance (see benchmark_plot.png)
 - Added Pokemon dataset (1025 images) for testing
+- Implemented Lance DB storage for embeddings
+- Added FastAPI server and search CLI
+- Added incremental embedding (skips unchanged files by path + mtime)
+- Added error handling for corrupted/unreadable images
 
-## Next Steps
-
-1. Embed all images on laptop locally
-2. Figure out storage format for embeddings
-3. Avoid re-embedding the same image, even if filename changed
-   - Key insight: we want **image content → embedding**, not **filename → embedding**
-4. Create `setup.sh` script that combines `uv sync` and model download
-5. Fix paths so embedding function works from anywhere (not just project root)
