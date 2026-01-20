@@ -40,9 +40,14 @@ Claude Desktop/Code config (`claude_desktop_config.json` or `.claude.json`):
 
 ### Implementation Plan
 
-1. Add `mcp` SDK to dependencies
-2. Create MCP server that exposes `search_images` tool
-3. Take image directory as CLI argument
-4. Make pip-installable with console script entry point
-5. Users run: `uvx local-image-search ~/Pictures`
+1. ~~Add `mcp` SDK to dependencies~~ Done
+2. ~~Create MCP server that exposes `search_images` tool~~ Done
+3. ~~Add console script entry point in pyproject.toml~~ Done
+4. Auto-download model if not present (handle missing model gracefully)
+5. Background thread to refresh embeddings every 5 min
+   - Runs immediately on startup (initial sync)
+   - Sleeps 5 min, then re-syncs, repeat
+   - Separate thread so it doesn't block MCP requests
+6. Take image directory as CLI argument
+7. Users run: `uvx local-image-search ~/Pictures`
 
