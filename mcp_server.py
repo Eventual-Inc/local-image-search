@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """MCP server for local image search."""
 
+import sys
 from pathlib import Path
 
 import daft
@@ -8,6 +9,11 @@ import numpy as np
 from mcp.server.fastmcp import FastMCP
 
 from core import load_model, embed_text, cosine_similarity, DB_PATH
+
+
+def log(msg: str):
+    """Log to stderr (stdout is reserved for MCP protocol)."""
+    print(msg, file=sys.stderr, flush=True)
 
 # Create MCP server
 mcp = FastMCP("local-image-search")
@@ -69,15 +75,15 @@ def main():
     """Main entry point."""
     global model, tokenizer, embeddings_df
 
-    print("Loading CLIP model...", flush=True)
+    log("Loading CLIP model...")
     model, tokenizer, _ = load_model()
 
-    print("Loading embeddings...", flush=True)
+    log("Loading embeddings...")
     if Path(DB_PATH).exists():
         embeddings_df = daft.read_lance(DB_PATH).collect()
-        print(f"Loaded {len(embeddings_df)} embeddings", flush=True)
+        log(f"Loaded {len(embeddings_df)} embeddings")
     else:
-        print("No embeddings found. Run embed.py first.", flush=True)
+        log("No embeddings found. Run embed.py first.")
 
     # Run the MCP server
     mcp.run()
