@@ -51,3 +51,31 @@ Claude Desktop/Code config (`claude_desktop_config.json` or `.claude.json`):
 6. Take image directory as CLI argument
 7. Users run: `uvx local-image-search ~/Pictures`
 
+### MCP Server Setup (Development)
+
+To test locally during development:
+
+```bash
+# Add to Claude Code (must split command and args properly)
+claude mcp add -s user local-image-search -- uv --directory /Users/yk/Desktop/projects/local-image-search run python mcp_server.py
+
+# Restart Claude Code to load the server
+```
+
+**Gotchas we encountered:**
+
+1. **stdout is reserved for MCP protocol** - Any `print()` statements corrupt the JSON-RPC communication. Use `print(..., file=sys.stderr)` for logging.
+
+2. **Command must be split from args** - This is wrong:
+   ```json
+   "command": "uv --directory /path run python mcp_server.py",
+   "args": []
+   ```
+   This is correct:
+   ```json
+   "command": "uv",
+   "args": ["--directory", "/path", "run", "python", "mcp_server.py"]
+   ```
+
+3. **Restart required** - Claude Code must be fully restarted (not just new conversation) to pick up MCP config changes.
+
