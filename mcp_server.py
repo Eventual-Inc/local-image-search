@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """MCP server for local image search."""
 
+import os
 import sys
 import threading
 import time
@@ -30,7 +31,7 @@ image_dir = None
 
 # Embedding refresh state
 embedding_lock = threading.Lock()
-REFRESH_INTERVAL = 300  # 5 minutes
+REFRESH_INTERVAL = int(os.environ.get("REFRESH_INTERVAL", "60"))  # default 1 minute
 
 
 @mcp.tool()
@@ -141,7 +142,7 @@ def main():
     if image_dir:
         refresh_thread = threading.Thread(target=embedding_refresh_loop, daemon=True)
         refresh_thread.start()
-        log("Background embedding refresh started (every 5 min)")
+        log(f"Background embedding refresh started (every {REFRESH_INTERVAL}s)")
 
     # Run the MCP server
     mcp.run()

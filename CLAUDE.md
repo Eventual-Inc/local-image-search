@@ -27,7 +27,7 @@ Claude Desktop/Code config (`claude_desktop_config.json` or `.claude.json`):
       "command": "uvx",
       "args": ["local-image-search", "/Users/username/Pictures"],
       "env": {
-        "SOME_VAR": "value"
+        "REFRESH_INTERVAL": "60"
       }
     }
   }
@@ -44,12 +44,33 @@ Claude Desktop/Code config (`claude_desktop_config.json` or `.claude.json`):
 2. ~~Create MCP server that exposes `search_images` tool~~ Done
 3. ~~Add console script entry point in pyproject.toml~~ Done
 4. Auto-download model if not present (handle missing model gracefully)
-5. Background thread to refresh embeddings every 5 min
+5. ~~Background thread to refresh embeddings~~ Done
    - Runs immediately on startup (initial sync)
-   - Sleeps 5 min, then re-syncs, repeat
+   - Default: every 60 seconds (configurable via `REFRESH_INTERVAL` env var)
    - Separate thread so it doesn't block MCP requests
-6. Take image directory as CLI argument
+6. ~~Take image directory as CLI argument~~ Done
 7. Users run: `uvx local-image-search ~/Pictures`
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REFRESH_INTERVAL` | `60` | Seconds between embedding refresh cycles |
+
+Example with custom interval:
+```json
+{
+  "mcpServers": {
+    "local-image-search": {
+      "command": "uvx",
+      "args": ["local-image-search", "/Users/username/Pictures"],
+      "env": {
+        "REFRESH_INTERVAL": "30"
+      }
+    }
+  }
+}
+```
 
 ### MCP Server Setup (Development)
 
