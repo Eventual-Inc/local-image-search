@@ -43,7 +43,7 @@ Claude Desktop/Code config (`claude_desktop_config.json` or `.claude.json`):
 1. ~~Add `mcp` SDK to dependencies~~ Done
 2. ~~Create MCP server that exposes `search_images` tool~~ Done
 3. ~~Add console script entry point in pyproject.toml~~ Done
-4. Auto-download model if not present (handle missing model gracefully)
+4. ~~Auto-download model if not present~~ Done
 5. ~~Background thread to refresh embeddings~~ Done
    - Runs immediately on startup (initial sync)
    - Default: every 60 seconds (configurable via `REFRESH_INTERVAL` env var)

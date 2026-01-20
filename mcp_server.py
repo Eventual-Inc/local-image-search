@@ -2,6 +2,7 @@
 """MCP server for local image search."""
 
 import os
+import subprocess
 import sys
 import threading
 import time
@@ -11,7 +12,7 @@ import daft
 import numpy as np
 from mcp.server.fastmcp import FastMCP
 
-from core import load_model, embed_text, cosine_similarity, DB_PATH
+from core import load_model, embed_text, cosine_similarity, DB_PATH, MODEL_PATH
 from embed import sync_embeddings
 
 
@@ -28,10 +29,48 @@ model = None
 tokenizer = None
 embeddings_df = None
 image_dir = None
+model_loading = False  # True while model is being downloaded/loaded
 
 # Embedding refresh state
 embedding_lock = threading.Lock()
 REFRESH_INTERVAL = int(os.environ.get("REFRESH_INTERVAL", "60"))  # default 1 minute
+
+
+def get_status_info() -> dict:
+    """Get current service status."""
+    if model_loading:
+        return {
+            "ready": False,
+            "status": "downloading_model",
+            "message": "Model is downloading (~600MB). Please wait 1-2 minutes."
+        }
+    if model is None:
+        return {
+            "ready": False,
+            "status": "loading_model",
+            "message": "Model is loading. Please wait a moment."
+        }
+    if embeddings_df is None or len(embeddings_df) == 0:
+        return {
+            "ready": False,
+            "status": "syncing_embeddings",
+            "message": "Initial embedding sync in progress. This may take a few minutes depending on the number of images."
+        }
+    return {
+        "ready": True,
+        "status": "ready",
+        "total_images": len(embeddings_df)
+    }
+
+
+@mcp.tool()
+def get_status() -> dict:
+    """Check if the image search service is ready.
+
+    Returns:
+        Status dict with 'ready' boolean and 'message' or 'total_images'
+    """
+    return get_status_info()
 
 
 @mcp.tool()
@@ -47,8 +86,10 @@ def search_images(query: str, limit: int = 5) -> list[dict]:
     """
     global model, tokenizer, embeddings_df
 
-    if embeddings_df is None:
-        return [{"error": "No embeddings loaded. Run embed.py first."}]
+    # Check if service is ready
+    status = get_status_info()
+    if not status["ready"]:
+        return [status]
 
     # Embed the query text
     query_embedding = embed_text(model, tokenizer, query)
@@ -79,6 +120,45 @@ def search_images(query: str, limit: int = 5) -> list[dict]:
     ]
 
     return results
+
+
+def ensure_model_exists():
+    """Download and convert CLIP model if not present."""
+    model_path = Path(MODEL_PATH)
+
+    # Check if model exists (look for model.safetensors or model.safetensors.index.json)
+    if (model_path / "model.safetensors").exists() or (model_path / "model.safetensors.index.json").exists():
+        return True
+
+    log("Model not found. Downloading and converting CLIP model (~600MB)...")
+    log("This only needs to happen once.")
+
+    # Run convert.py from the clip directory
+    clip_dir = model_path.parent
+    convert_script = clip_dir / "convert.py"
+
+    if not convert_script.exists():
+        log(f"Error: convert.py not found at {convert_script}")
+        return False
+
+    try:
+        result = subprocess.run(
+            [sys.executable, str(convert_script)],
+            cwd=str(clip_dir),
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            log(f"Error downloading model: {result.stderr}")
+            return False
+
+        log("Model downloaded and converted successfully.")
+        return True
+
+    except Exception as e:
+        log(f"Error downloading model: {e}")
+        return False
 
 
 def reload_embeddings():
@@ -117,19 +197,21 @@ def embedding_refresh_loop():
         time.sleep(REFRESH_INTERVAL)
 
 
-def main():
-    """Main entry point."""
-    global model, tokenizer, embeddings_df, image_dir
+def startup_task():
+    """Background task to download model and load embeddings."""
+    global model, tokenizer, embeddings_df, image_dir, model_loading
 
-    # Parse image directory from command line
-    if len(sys.argv) > 1:
-        image_dir = Path(sys.argv[1]).expanduser().resolve()
-        log(f"Image directory: {image_dir}")
-    else:
-        log("Warning: No image directory specified. Background refresh disabled.")
+    model_loading = True
+
+    # Ensure model exists (download if needed)
+    if not ensure_model_exists():
+        log("Failed to download model.")
+        model_loading = False
+        return
 
     log("Loading CLIP model...")
     model, tokenizer, _ = load_model()
+    model_loading = False
 
     log("Loading embeddings...")
     if Path(DB_PATH).exists():
@@ -144,7 +226,23 @@ def main():
         refresh_thread.start()
         log(f"Background embedding refresh started (every {REFRESH_INTERVAL}s)")
 
-    # Run the MCP server
+
+def main():
+    """Main entry point."""
+    global image_dir
+
+    # Parse image directory from command line
+    if len(sys.argv) > 1:
+        image_dir = Path(sys.argv[1]).expanduser().resolve()
+        log(f"Image directory: {image_dir}")
+    else:
+        log("Warning: No image directory specified. Background refresh disabled.")
+
+    # Start model loading in background
+    startup_thread = threading.Thread(target=startup_task, daemon=True)
+    startup_thread.start()
+
+    # Run the MCP server (starts immediately, responds with status while loading)
     mcp.run()
 
 
