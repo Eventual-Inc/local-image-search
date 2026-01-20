@@ -62,7 +62,6 @@ uv run python server.py
 Search via CLI:
 ```bash
 uv run python search.py "sunset"           # list results
-uv run python search.py "cat" -o           # open in viewer
 uv run python search.py "people" -n 10     # show 10 results
 ```
 
