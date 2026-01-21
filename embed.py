@@ -15,9 +15,9 @@ from core import EmbedImages, find_images, format_time, IMAGES_PER_SECOND, DB_PA
 VECTOR_DTYPE = DataType.embedding(DataType.float32(), 512)
 
 
-def get_current_files(directory: Path, recursive: bool = True, show_progress: bool = True) -> dict[str, float]:
+def get_current_files(directory: Path, recursive: bool = True, show_progress: bool = True, exclude_dirs: list[str] | None = None) -> dict[str, float]:
     """Scan directory and return {path: mtime} for all images."""
-    images = find_images(directory, recursive=recursive, show_progress=show_progress)
+    images = find_images(directory, recursive=recursive, show_progress=show_progress, exclude_dirs=exclude_dirs)
     return {str(p): p.stat().st_mtime for p in images}
 
 
@@ -32,20 +32,21 @@ def get_stored_files() -> dict[str, float]:
     return dict(zip(data["path"], data["mtime"]))
 
 
-def sync_embeddings(directory: Path, recursive: bool = True, log_fn=print) -> dict:
+def sync_embeddings(directory: Path, recursive: bool = True, log_fn=print, exclude_dirs: list[str] | None = None) -> dict:
     """Sync embeddings for images in a directory.
 
     Args:
         directory: Directory to scan for images
         recursive: Whether to search subdirectories
         log_fn: Function to use for logging (default: print)
+        exclude_dirs: List of directory names to exclude (e.g. ["Library", ".cache"])
 
     Returns:
         Dict with stats: {new, modified, deleted, unchanged, total, elapsed}
     """
     # Scan current files
     log_fn(f"Scanning: {directory}")
-    current = get_current_files(directory, recursive=recursive, show_progress=False)
+    current = get_current_files(directory, recursive=recursive, show_progress=False, exclude_dirs=exclude_dirs)
     log_fn(f"Found: {len(current):,} images")
 
     # Load stored embeddings

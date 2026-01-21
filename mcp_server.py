@@ -12,7 +12,7 @@ import daft
 import numpy as np
 from mcp.server.fastmcp import FastMCP
 
-from core import load_model, embed_text, cosine_similarity, DB_PATH, MODEL_PATH
+from core import load_model, embed_text, cosine_similarity, DB_PATH, MODEL_PATH, DEFAULT_EXCLUDE_DIRS
 from embed import sync_embeddings
 
 
@@ -29,6 +29,7 @@ model = None
 tokenizer = None
 embeddings_df = None
 image_dir = None
+exclude_dirs = None  # Directories to exclude from scanning
 model_loading = False  # True while model is being downloaded/loaded
 
 # Embedding refresh state
@@ -175,7 +176,7 @@ def reload_embeddings():
 
 def embedding_refresh_loop():
     """Background loop to refresh embeddings periodically."""
-    global image_dir
+    global image_dir, exclude_dirs
 
     while True:
         # Try to acquire lock (non-blocking)
@@ -185,7 +186,7 @@ def embedding_refresh_loop():
             try:
                 if image_dir and image_dir.exists():
                     log(f"Starting embedding refresh for {image_dir}...")
-                    sync_embeddings(image_dir, log_fn=log)
+                    sync_embeddings(image_dir, log_fn=log, exclude_dirs=exclude_dirs)
                     reload_embeddings()
                 else:
                     log(f"Image directory not set or doesn't exist: {image_dir}")
@@ -229,14 +230,34 @@ def startup_task():
 
 def main():
     """Main entry point."""
-    global image_dir
+    global image_dir, exclude_dirs
+
+    # Parse EXCLUDE_DIRS from environment (comma-separated)
+    exclude_env = os.environ.get("EXCLUDE_DIRS", "").strip()
+    custom_excludes = [d.strip() for d in exclude_env.split(",") if d.strip()] if exclude_env else None
 
     # Parse image directory from command line
     if len(sys.argv) > 1:
+        # Custom root provided
         image_dir = Path(sys.argv[1]).expanduser().resolve()
+        # Use custom excludes if provided, otherwise no excludes
+        exclude_dirs = custom_excludes
         log(f"Image directory: {image_dir}")
+        if exclude_dirs:
+            log(f"Excluding: {', '.join(exclude_dirs)}")
     else:
-        log("Warning: No image directory specified. Background refresh disabled.")
+        # No root provided - use home with defaults (unless custom excludes provided)
+        image_dir = Path.home()
+        if custom_excludes:
+            # Custom excludes override defaults
+            exclude_dirs = custom_excludes
+            log(f"Image directory: {image_dir} (default)")
+            log(f"Excluding: {', '.join(exclude_dirs)}")
+        else:
+            # Use default excludes
+            exclude_dirs = DEFAULT_EXCLUDE_DIRS
+            log(f"Image directory: {image_dir} (default)")
+            log(f"Excluding (defaults): {', '.join(exclude_dirs)}")
 
     # Start model loading in background
     startup_thread = threading.Thread(target=startup_task, daemon=True)

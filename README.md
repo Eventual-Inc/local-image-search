@@ -1,19 +1,86 @@
 # Local Image Search
 
-Local image search using MLX CLIP embeddings and Daft for batch processing.
+MCP server for local image search using MLX CLIP embeddings.
 
 ## Features
 
-- Generate CLIP embeddings for images using Apple's MLX framework
-- Batch process images efficiently with Daft
-- Search images using natural language queries
+- **MCP Server** - Works with Claude Code and Claude Desktop
+- **Auto-setup** - Model downloads automatically on first run
+- **Background sync** - Embeddings refresh automatically every 60 seconds
+- **Natural language search** - Find images by describing them
+- **Apple Silicon optimized** - Uses MLX for fast inference
 
 ## Requirements
 
 - macOS with Apple Silicon (M1/M2/M3/M4)
 - Python 3.11+
 
-## Setup
+## Quick Start (MCP Server)
+
+Add to your Claude Code or Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "local-image-search": {
+      "command": "uvx",
+      "args": ["local-image-search"]
+    }
+  }
+}
+```
+
+That's it! The server will:
+1. Scan your home directory for images (excluding Library, .cache, node_modules, etc.)
+2. Download the CLIP model (~600MB) on first run
+3. Generate embeddings for all images
+4. Refresh automatically every 60 seconds
+
+### Custom Configuration
+
+**Scan a specific folder:**
+```json
+{
+  "args": ["local-image-search", "~/Pictures"]
+}
+```
+
+**Custom excludes:**
+```json
+{
+  "args": ["local-image-search"],
+  "env": {
+    "EXCLUDE_DIRS": "Downloads,Desktop,Movies"
+  }
+}
+```
+
+**Faster refresh:**
+```json
+{
+  "env": {
+    "REFRESH_INTERVAL": "30"
+  }
+}
+```
+
+### Configuration Logic
+
+| Options | Root | Excludes |
+|---------|------|----------|
+| None | `~` (home) | Default excludes |
+| Root only | Custom root | None |
+| Excludes only | `~` (home) | Custom excludes |
+| Root + Excludes | Custom root | Custom excludes |
+
+**Default excludes:** Library, .Trash, .cache, node_modules, .git, .venv, venv
+
+### MCP Tools
+
+- `search_images(query, limit)` - Search for images matching a text description
+- `get_status()` - Check if the service is ready (model loaded, embeddings synced)
+
+## Development Setup
 
 ```bash
 # Clone the repo
@@ -27,7 +94,7 @@ uv sync
 cd clip && uv run python convert.py && cd ..
 ```
 
-## Usage
+## CLI Usage
 
 ### Embed images from a directory
 ```bash

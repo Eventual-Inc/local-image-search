@@ -56,18 +56,46 @@ Claude Desktop/Code config (`claude_desktop_config.json` or `.claude.json`):
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `REFRESH_INTERVAL` | `60` | Seconds between embedding refresh cycles |
+| `EXCLUDE_DIRS` | (none) | Comma-separated list of directories to exclude |
 
-Example with custom interval:
+### Configuration Logic
+
+| Options | Root | Excludes |
+|---------|------|----------|
+| None | `~` (home) | Default excludes |
+| Root only | Custom root | None |
+| Excludes only | `~` (home) | Custom excludes |
+| Root + Excludes | Custom root | Custom excludes |
+
+**Default excludes:** Library, .Trash, .cache, node_modules, .git, .venv, venv
+
+### Example Configurations
+
+**Minimal (scan home with defaults):**
 ```json
 {
   "mcpServers": {
     "local-image-search": {
       "command": "uvx",
-      "args": ["local-image-search", "/Users/username/Pictures"],
-      "env": {
-        "REFRESH_INTERVAL": "30"
-      }
+      "args": ["local-image-search"]
     }
+  }
+}
+```
+
+**Custom folder:**
+```json
+{
+  "args": ["local-image-search", "~/Pictures"]
+}
+```
+
+**Custom excludes:**
+```json
+{
+  "args": ["local-image-search"],
+  "env": {
+    "EXCLUDE_DIRS": "Downloads,Desktop,Movies"
   }
 }
 ```

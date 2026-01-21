@@ -35,6 +35,17 @@ IMAGE_EXTENSIONS = {
 # Benchmark: ~280 images/second on M4 Max for batches of 225+
 IMAGES_PER_SECOND = 280
 
+# Default directories to exclude when scanning home directory
+DEFAULT_EXCLUDE_DIRS = [
+    "Library",
+    ".Trash",
+    ".cache",
+    "node_modules",
+    ".git",
+    ".venv",
+    "venv",
+]
+
 
 @daft.cls
 class EmbedImages:
@@ -86,8 +97,15 @@ def embed_text(model, tokenizer, text: str) -> np.ndarray:
     return np.array(output.text_embeds[0])
 
 
-def find_images(directory: Path, recursive: bool = True, show_progress: bool = True) -> list[Path]:
-    """Find all image files in a directory using find command."""
+def find_images(directory: Path, recursive: bool = True, show_progress: bool = True, exclude_dirs: list[str] | None = None) -> list[Path]:
+    """Find all image files in a directory using find command.
+
+    Args:
+        directory: Root directory to search
+        recursive: Whether to search subdirectories
+        show_progress: Whether to print progress
+        exclude_dirs: List of directory names to exclude (e.g. ["Library", ".cache"])
+    """
     import subprocess
     import sys
 
@@ -102,8 +120,14 @@ def find_images(directory: Path, recursive: bool = True, show_progress: bool = T
     cmd = ["find", str(directory)]
     if not recursive:
         cmd.extend(["-maxdepth", "1"])
-    # Exclude hidden directories
-    cmd.extend(["-name", ".*", "-prune", "-o"])
+
+    # Build prune conditions for excluded directories
+    prune_args = ["-name", ".*"]  # Always exclude hidden directories
+    if exclude_dirs:
+        for exclude in exclude_dirs:
+            prune_args.extend(["-o", "-name", exclude])
+
+    cmd.extend(["("] + prune_args + [")", "-prune", "-o"])
     cmd.extend(["-type", "f", "("] + name_args + [")", "-print"])
 
     # Stream output and show progress
