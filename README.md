@@ -2,6 +2,8 @@
 
 Give your AI coding agent the ability to search through all your local images. Privacy-first, 100% local MCP server for macOS. Uses MLX CLIP for embeddings, Daft for batch processing, and Lance for vector storage.
 
+https://github.com/Eventual-Inc/local-image-search/raw/main/demo.mov
+
 ## Features
 
 - **100% local** - Images and embeddings never leave your machine
