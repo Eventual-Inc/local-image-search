@@ -1,4 +1,4 @@
-# Local Image Search
+# Local Image Search MCP
 
 MCP server for semantic image search on macOS. Uses MLX CLIP for embeddings, Daft for batch processing, and Lance for vector storage.
 
