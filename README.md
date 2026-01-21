@@ -49,7 +49,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-Restart Claude after setup.
+Restart Claude after setup. By default, it scans your home directory (`~`) and skips common system folders. See [Configuration Logic](#configuration-logic) for details.
 
 ### Custom Configuration
 
@@ -175,6 +175,9 @@ local-image-search/
 ├── data/
 │   └── pokemon/             # Pokemon artwork (1025 images)
 ├── embeddings.lance/        # Lance DB storage (generated)
+├── mcp_server.py            # MCP server entry point
+├── server.py                # FastAPI server for local API
+├── search.py                # CLI search tool
 ├── core.py                  # Shared utilities (EmbedImages, find_images, etc.)
 ├── embed.py                 # CLI tool to sync embeddings from a directory
 ├── test_embed.py            # Tests for embed.py
@@ -211,10 +214,6 @@ uv run python plot_benchmark.py # Generate plot from CSV
 | Total time | ~65s |
 | Embed speed | 260 img/s |
 | Re-run (cached) | ~31s (scan only) |
-
-## Current Progress and Next Steps
-
-See [CLAUDE.md](CLAUDE.md)
 
 ## Data Attribution
 
