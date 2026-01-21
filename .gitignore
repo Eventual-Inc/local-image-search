@@ -2,3 +2,4 @@
 __pycache__/
 *.pyc
 embeddings.lance/
+local_image_search.egg-info/
