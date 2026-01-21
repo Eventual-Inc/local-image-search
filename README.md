@@ -15,12 +15,14 @@ MCP server for semantic image search on macOS. Uses MLX CLIP for embeddings, Daf
 
 ## Quick Start
 
+### Claude Code
+
 **Option 1: CLI**
 ```bash
 claude mcp add local-image-search -- uvx local-image-search
 ```
 
-**Option 2: Manual config** — add to `~/.claude.json`:
+**Option 2: Manual** — add to `~/.claude.json`:
 ```json
 {
   "mcpServers": {
@@ -32,7 +34,21 @@ claude mcp add local-image-search -- uvx local-image-search
 }
 ```
 
-Restart Claude Code after setup.
+### Claude Desktop
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "local-image-search": {
+      "command": "uvx",
+      "args": ["local-image-search"]
+    }
+  }
+}
+```
+
+Restart Claude after setup.
 
 ### Custom Configuration
 
