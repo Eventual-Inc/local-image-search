@@ -1,6 +1,6 @@
 # Local Image Search MCP
 
-Privacy-first, 100% local MCP server for semantic image search on macOS. Your images never leave your machine. Uses MLX CLIP for embeddings, Daft for batch processing, and Lance for vector storage.
+Give your AI coding agent the ability to search through all your local images. Privacy-first, 100% local MCP server for macOS. Uses MLX CLIP for embeddings, Daft for batch processing, and Lance for vector storage.
 
 ## Features
 
@@ -23,7 +23,7 @@ Privacy-first, 100% local MCP server for semantic image search on macOS. Your im
 claude mcp add local-image-search -- uvx local-image-search
 ```
 
-**Option 2: Manual** — add to `~/.claude.json`:
+**Option 2: Manual** - add to `~/.claude.json`:
 ```json
 {
   "mcpServers": {
