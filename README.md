@@ -13,10 +13,14 @@ MCP server for semantic image search on macOS. Uses MLX CLIP for embeddings, Daf
 - macOS with Apple Silicon (M1/M2/M3/M4)
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (for `uvx` command)
 
-## Quick Start (MCP Server)
+## Quick Start
 
-Add to your Claude Code or Claude Desktop config:
+**Option 1: CLI**
+```bash
+claude mcp add local-image-search -- uvx local-image-search
+```
 
+**Option 2: Manual config** — add to `~/.claude.json`:
 ```json
 {
   "mcpServers": {
@@ -28,11 +32,7 @@ Add to your Claude Code or Claude Desktop config:
 }
 ```
 
-That's it! The server will:
-1. Scan your home directory for images (excluding Library, .cache, node_modules, etc.)
-2. Download the CLIP model (~600MB) on first run
-3. Generate embeddings for all images
-4. Refresh automatically every 60 seconds
+Restart Claude Code after setup.
 
 ### Custom Configuration
 
