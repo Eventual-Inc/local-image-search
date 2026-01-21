@@ -7,7 +7,7 @@ Give your AI coding agent the ability to search through all your local images. P
 - **100% local** - Images and embeddings never leave your machine
 - **MCP Server** - Works with Claude Code and Claude Desktop
 - **Natural language search** - Find images by describing them
-- **Apple Silicon optimized** - Uses MLX for fast on-device inference
+- **Fast** - [260+ images/second](#real-world-performance-m4-max-home-directory) on Apple Silicon via MLX
 
 ## Requirements
 
