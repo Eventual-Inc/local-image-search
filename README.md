@@ -5,15 +5,13 @@ MCP server for semantic image search on macOS. Uses MLX CLIP for embeddings, Daf
 ## Features
 
 - **MCP Server** - Works with Claude Code and Claude Desktop
-- **Auto-setup** - Model downloads automatically on first run
-- **Background sync** - Embeddings refresh automatically every 60 seconds
 - **Natural language search** - Find images by describing them
 - **Apple Silicon optimized** - Uses MLX for fast inference
 
 ## Requirements
 
 - macOS with Apple Silicon (M1/M2/M3/M4)
-- Python 3.11+
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (for `uvx` command)
 
 ## Quick Start (MCP Server)
 
