@@ -40,6 +40,7 @@ DEFAULT_EXCLUDE_DIRS = [
     "Library",
     ".Trash",
     ".cache",
+    "Cache",
     "node_modules",
     ".git",
     ".venv",

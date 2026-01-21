@@ -73,7 +73,7 @@ That's it! The server will:
 | Excludes only | `~` (home) | Custom excludes |
 | Root + Excludes | Custom root | Custom excludes |
 
-**Default excludes:** Library, .Trash, .cache, node_modules, .git, .venv, venv
+**Default excludes:** Library, .Trash, .cache, Cache, node_modules, .git, .venv, venv
 
 ### MCP Tools
 
