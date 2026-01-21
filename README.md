@@ -1,12 +1,13 @@
 # Local Image Search MCP
 
-MCP server for semantic image search on macOS. Uses MLX CLIP for embeddings, Daft for batch processing, and Lance for vector storage.
+Privacy-first, 100% local MCP server for semantic image search on macOS. Your images never leave your machine. Uses MLX CLIP for embeddings, Daft for batch processing, and Lance for vector storage.
 
 ## Features
 
+- **100% local** - Images and embeddings never leave your machine
 - **MCP Server** - Works with Claude Code and Claude Desktop
 - **Natural language search** - Find images by describing them
-- **Apple Silicon optimized** - Uses MLX for fast inference
+- **Apple Silicon optimized** - Uses MLX for fast on-device inference
 
 ## Requirements
 
