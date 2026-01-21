@@ -49,7 +49,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-Restart Claude after setup. By default, it scans your home directory (`~`) and skips common system folders. See [Configuration Logic](#configuration-logic) for details.
+Restart Claude after setup. The first run downloads the model (~600MB) and embeds your images, which may take a few minutes. After that, it only processes new or changed files. By default, it scans your home directory (`~`) and skips common system folders. See [Configuration Logic](#configuration-logic) for details.
 
 ### Custom Configuration
 
