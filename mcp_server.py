@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """MCP server for local image search."""
 
+import fcntl
 import os
+import random
 import subprocess
 import sys
 import threading
@@ -14,6 +16,9 @@ from mcp.server.fastmcp import FastMCP
 
 from core import load_model, embed_text, cosine_similarity, DB_PATH, MODEL_PATH, DEFAULT_EXCLUDE_DIRS
 from embed import sync_embeddings
+
+# File-based lock to prevent concurrent refreshes across processes
+LOCK_FILE = Path(DB_PATH).parent / ".embedding_refresh.lock"
 
 
 def log(msg: str):
@@ -33,7 +38,6 @@ exclude_dirs = None  # Directories to exclude from scanning
 model_loading = False  # True while model is being downloaded/loaded
 
 # Embedding refresh state
-embedding_lock = threading.Lock()
 REFRESH_INTERVAL = int(os.environ.get("REFRESH_INTERVAL", "60"))  # default 1 minute
 
 
@@ -179,21 +183,35 @@ def embedding_refresh_loop():
     global image_dir, exclude_dirs
 
     while True:
-        # Try to acquire lock (non-blocking)
-        if not embedding_lock.acquire(blocking=False):
-            log("Embedding refresh still in progress, skipping this cycle")
-        else:
-            try:
-                if image_dir and image_dir.exists():
-                    log(f"Starting embedding refresh for {image_dir}...")
-                    sync_embeddings(image_dir, log_fn=log, exclude_dirs=exclude_dirs)
-                    reload_embeddings()
-                else:
-                    log(f"Image directory not set or doesn't exist: {image_dir}")
-            except Exception as e:
-                log(f"Embedding refresh failed: {e}")
-            finally:
-                embedding_lock.release()
+        # Add random jitter (0-30 seconds) to prevent thundering herd
+        jitter = random.uniform(0, 30)
+        time.sleep(jitter)
+
+        # Try to acquire file-based lock (non-blocking) to coordinate across processes
+        lock_file = None
+        try:
+            LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+            lock_file = open(LOCK_FILE, "w")
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except (IOError, OSError):
+            log("Another process is refreshing embeddings, skipping this cycle")
+            if lock_file:
+                lock_file.close()
+            time.sleep(REFRESH_INTERVAL)
+            continue
+
+        try:
+            if image_dir and image_dir.exists():
+                log(f"Starting embedding refresh for {image_dir}...")
+                sync_embeddings(image_dir, log_fn=log, exclude_dirs=exclude_dirs)
+                reload_embeddings()
+            else:
+                log(f"Image directory not set or doesn't exist: {image_dir}")
+        except Exception as e:
+            log(f"Embedding refresh failed: {e}")
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            lock_file.close()
 
         time.sleep(REFRESH_INTERVAL)
 
